@@ -3,7 +3,7 @@ import { emailRegex } from '../constants/emailRegex.js';
 
 const userSchema = new Schema(
   {
-    username: {
+    name: {
       type: String,
       trim: true,
     },
