@@ -1,4 +1,5 @@
 import * as storyService from '../services/storyService.js';
+import createHttpError from 'http-errors'; // Імпортуємо бібліотеку помилок
 
 export const getStoryById = async (req, res, next) => {
   try {
@@ -7,9 +8,7 @@ export const getStoryById = async (req, res, next) => {
     const story = await storyService.getStoryById(storyId);
 
     if (!story) {
-      return res.status(404).json({
-        message: 'Така історія відсутня',
-      });
+      throw createHttpError(404, 'Така історія відсутня');
     }
 
     return res.status(200).json(story);
