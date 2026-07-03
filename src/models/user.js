@@ -1,36 +1,44 @@
-import { model, Schema } from 'mongoose';
+// src/models/User.js
 
-const userSchema = new Schema(
+import mongoose from 'mongoose';
+import { emailRegex } from '../constants/emailRegex.js';
+
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       trim: true,
     },
-    avatarUrl: {
+    email: {
       type: String,
-      default: 'https://api.dicebear.com/10.x/glyphs/svg?seed=1ufyhxau',
-    },
-    articlesAmount: {
-      type: Number,
-      default: 0,
+      match: emailRegex,
+      unique: true,
+      required: true,
+      trim: true,
+      lowercase: true,
     },
     password: {
       type: String,
       required: true,
     },
-    savedArticles: {
-      type: [Schema.Types.ObjectId],
-      ref: 'story',
-      default: [],
+    avatar: {
+      type: String,
+      default: 'https://ac.goit.global/fullstack/react/default-avatar.jpg',
     },
   },
-  { timestamps: true, versionKey: false },
+  {
+    timestamps: true,
+    versionKey: false,
+  },
 );
 
-userSchema.methods.toJSON = function() {
+// прибираємо пароль з відповіді API
+userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
 
-export const User = model('user', userSchema);
+// захист від OverwriteModelError (ВАЖЛИВО)
+export const User =
+  mongoose.models.User || mongoose.model('User', userSchema);
