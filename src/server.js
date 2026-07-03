@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use(profileRoutes);
+app.use('/api/profile',profileRoutes);
 
 app.use(notFoundHandler);
 

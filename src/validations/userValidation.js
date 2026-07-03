@@ -18,8 +18,3 @@ export const getUserByIdSchema = {
     userId: Joi.string().custom(objectIdValidator).required(),
   }),
 };
-export const getCurrentUserSchema = {
-  [Segments.PARAMS]: Joi.object({
-    userId: Joi.string().custom(objectIdValidator).required(),
-  }),
-};

@@ -5,11 +5,11 @@ import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import { User } from '../models/user.js';
 
 export const getCurrentUser = async (req, res) => {
-  if (!req.user) {
+  const user = await req.user;
+  if (!user) {
     throw createHttpError(401, 'Unauthorized');
   }
-
-  res.status(200).json(req.user);
+  res.status(200).json(user);
 };
 
 export const updateAvatar = async (req, res) => {
