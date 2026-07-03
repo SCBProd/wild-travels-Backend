@@ -5,7 +5,9 @@ import { getCurrentUserSchema } from '../validations/userValidation';
 
 
 
-const router = Router();
+const profileRoutes = Router();
 
-router.get('/profile',celebrate(getCurrentUserSchema),getCurrentUser);
+profileRoutes.get('/profile',celebrate(getCurrentUserSchema),getCurrentUser);
+
+export default profileRoutes;
 
