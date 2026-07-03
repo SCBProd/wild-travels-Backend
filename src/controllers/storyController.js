@@ -1,5 +1,5 @@
 import * as storyService from '../services/storyService.js';
-import createHttpError from 'http-errors'; // Імпортуємо бібліотеку помилок
+import createHttpError from 'http-errors';
 
 export const getStoryById = async (req, res, next) => {
   try {
