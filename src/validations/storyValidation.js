@@ -1,7 +1,12 @@
 import { Joi, Segments } from 'celebrate';
+import { isValidObjectId } from 'mongoose';
+
+const objectIdValidator = (value, helpers) => {
+  return !isValidObjectId(value) ? helpers.message('Invalid id format') : value;
+};
 
 export const getStoryByIdSchema = {
-  [Segments.PARAMS]: Joi.object().keys({
-    storyId: Joi.string().hex().length(24).required(),
+  [Segments.PARAMS]: Joi.object({
+    storyId: Joi.string().custom(objectIdValidator).required(),
   }),
 };
