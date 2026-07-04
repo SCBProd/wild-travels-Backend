@@ -23,3 +23,9 @@ export const getCurrentUserSchema = {
     userId: Joi.string().custom(objectIdValidator).required(),
   }),
 };
+
+export const removeSavedArticleSchema = {
+  [Segments.PARAMS]: Joi.object({
+    articleId: Joi.string().custom(objectIdValidator).required(),
+  }),
+};
