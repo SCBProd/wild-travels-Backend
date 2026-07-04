@@ -1,8 +1,23 @@
 import { Router } from 'express';
-import { getRecommendedStoriesController } from '../controllers/storyController.js';
+import { celebrate } from 'celebrate';
 
-const router = Router();
+import {
+  getStories,
+  getStoryById,
+  getRecommendedStoriesController,
+} from '../controllers/storyController.js';
 
-router.get('/recommended', getRecommendedStoriesController);
+import {
+  getStoriesSchema,
+  getStoryByIdSchema,
+} from '../validations/storyValidation.js';
 
-export default router;
+const storiesRoutes = Router();
+
+storiesRoutes.get('/recommended', getRecommendedStoriesController);
+
+storiesRoutes.get('/', celebrate(getStoriesSchema), getStories);
+
+storiesRoutes.get('/:storyId', celebrate(getStoryByIdSchema), getStoryById);
+
+export default storiesRoutes;

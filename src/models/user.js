@@ -1,9 +1,17 @@
 import { model, Schema } from 'mongoose';
+import { emailRegex } from '../constants/emailRegex.js';
 
 const userSchema = new Schema(
   {
     name: {
       type: String,
+      trim: true,
+    },
+    email: {
+      type: String,
+      match: emailRegex,
+      unique: true,
+      required: true,
       trim: true,
     },
     avatarUrl: {
@@ -20,7 +28,7 @@ const userSchema = new Schema(
     },
     savedArticles: {
       type: [Schema.Types.ObjectId],
-      ref: 'story',
+      ref: 'Story',
       default: [],
     },
   },
@@ -33,4 +41,4 @@ userSchema.methods.toJSON = function() {
   return obj;
 };
 
-export const User = model('user', userSchema);
+export const User = model('User', userSchema);
