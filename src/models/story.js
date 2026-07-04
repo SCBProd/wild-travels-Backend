@@ -13,4 +13,4 @@ const storySchema = new Schema(
   { versionKey: false, timestamps: true },
 );
 
-export const Story = model('story', storySchema, 'storys');
+export const Story = model('story', storySchema);
