@@ -12,10 +12,7 @@ export const getOwnStories = async (req, res) => {
 
   const [totalItems, stories] = await Promise.all([
     storyQuery.clone().countDocuments(),
-    storyQuery
-      .skip(skip)
-      .limit(Number(perPage))
-      .sort({ createdAt: -1 }),
+    storyQuery.skip(skip).limit(Number(perPage)).sort({ createdAt: -1 }),
   ]);
 
   res.status(200).json({
@@ -26,6 +23,7 @@ export const getOwnStories = async (req, res) => {
     stories,
   });
 };
+
 export const getOwnStoriByID = async (req, res) => {
   const { storyId } = req.params;
   const story = await Story.findOne({
@@ -34,6 +32,15 @@ export const getOwnStoriByID = async (req, res) => {
   });
   if (!story) {
     throw createHttpError(404, ' Story not found');
+  }
+  res.status(200).json(story);
+};
+
+export const getStoryById = async (req, res) => {
+  const { storyId } = req.params;
+  const story = await Story.findById(storyId);
+  if (!story) {
+    throw createHttpError(404, 'Story not found');
   }
   res.status(200).json(story);
 };
