@@ -12,7 +12,7 @@ const sessionSchema = new Schema(
     },
     refreshToken: {
       type: String,
-      reuired: true,
+      required: true,
     },
     accessTokenValidUntil: {
       type: Date,

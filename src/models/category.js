@@ -14,14 +14,5 @@ const categorySchema = new Schema(
   }
 );
 
-export const Category = model('Category', categorySchema, 'categories');
-  },
-  {
-    timestamps: true,
-    versionKey: false,
-    collection: 'categorys',
-  },
-);
-
-export const Category = mongoose.model('Category', categorySchema);
+export const Category = model('Category', categorySchema, 'categorys');
 
