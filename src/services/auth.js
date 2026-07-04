@@ -29,6 +29,6 @@ export const setSessionCookies = (res, session) => {
     httpOnly: true,
     secure: true,
     sameSite: 'none',
-    magAge: ONE_DAY,
+    maxAge: ONE_DAY,
   });
 };
