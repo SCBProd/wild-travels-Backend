@@ -59,3 +59,32 @@ export const getUserById = async (req, res) => {
     totalPages,
   });
 };
+
+export const removeSavedArticle = async (req, res) => {
+  const { articleId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(articleId)) {
+    throw createHttpError(400, 'Invalid article id');
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $pull: {
+        savedArticles: articleId,
+      },
+    },
+    {
+      new: true,
+    },
+  );
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  res.status(200).json({
+    message: 'Article removed from saved articles',
+    savedArticles: user.savedArticles,
+  });
+};
