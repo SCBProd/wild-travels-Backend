@@ -1,9 +1,17 @@
 import { model, Schema } from 'mongoose';
+import { emailRegex } from '../constants/emailRegex.js';
 
 const userSchema = new Schema(
   {
     name: {
       type: String,
+      trim: true,
+    },
+    email: {
+      type: String,
+      match: emailRegex,
+      unique: true,
+      required: true,
       trim: true,
     },
     avatarUrl: {
