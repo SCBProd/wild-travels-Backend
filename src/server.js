@@ -14,7 +14,7 @@ import authRoutes from './routes/authRoutes.js';
 import storiesRoutes from './routes/stories.js';
 import userRoutes from './routes/usersRoutes.js';
 import profileRoutes from './routes/profile.js';
-import categoryRouter from './routes/categories.js';
+import categoryRoutes from './routes/categories.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -29,7 +29,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/stories', storiesRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/profile', profileRoutes);
-app.use('/api/categories', categoryRouter);
+app.use('/api/categories', categoryRoutes);
+
+app.use(notFoundHandler);
 
 app.use(errors());
 app.use(notFoundHandler);
