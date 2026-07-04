@@ -16,16 +16,21 @@ const storySchema = new Schema(
     },
     category: {
       type: Schema.Types.ObjectId,
-      ref: 'category',
+      ref: 'Category',
       required: true,
     },
     rate: {
       type: Number,
       default: 0,
     },
+    savedCount: {
+      type: Number,
+      default: 0,
+    },
+
     ownerId: {
       type: Schema.Types.ObjectId,
-      ref: 'user',
+      ref: 'User',
       required: true,
     },
     date: {
@@ -33,7 +38,8 @@ const storySchema = new Schema(
       required: true,
     },
   },
+
   { versionKey: false, timestamps: true },
 );
 
-export const Story = model('story', storySchema);
+export const Story = model('Story', storySchema);

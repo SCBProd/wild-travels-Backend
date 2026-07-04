@@ -1,43 +1,33 @@
-// src\controllers\profileController.js
-
 import createHttpError from 'http-errors';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import { User } from '../models/user.js';
 
-export const getCurrentUser = async (req, res) => {
-  const user = await req.user;
-  if (!user) {
-    throw createHttpError(401, 'Unauthorized');
-  }
-  res.status(200).json(user);
-};
+export async function getCurrentUser(req, res) {
+  const { sessionId } = req.cookies;
 
-export const updateAvatar = async (req, res) => {
-  if (!req.user) {
-    throw createHttpError(401, 'Unauthorized');
+  const user = await User.findOne({ sessionId });
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
   }
+
+  res.status(200).json(user);
+}
+
+export async function updateAvatar(req, res) {
+  const { _id } = req.user;
 
   if (!req.file) {
-    throw createHttpError(400, 'Avatar is required');
+    throw createHttpError(400, 'Avatar file is required');
   }
 
-  const result = await saveFileToCloudinary(
-    req.file.buffer,
-    req.user.id,
-  );
+  const avatarUrl = await saveFileToCloudinary(req.file.path);
 
   const user = await User.findByIdAndUpdate(
-    req.user.id,
-    {
-      avatar: result.secure_url,
-    },
-    {
-      new: true,
-    },
+    _id,
+    { avatar: avatarUrl },
+    { new: true },
   );
 
-  res.status(200).json({
-    message: 'Avatar updated successfully',
-    avatar: user.avatar,
-  });
-};
+  res.status(200).json(user);
+}
