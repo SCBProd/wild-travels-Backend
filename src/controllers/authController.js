@@ -5,11 +5,11 @@ import { createSession, setSessionCookies } from '../services/auth.js';
 import { Session } from '../models/session.js';
 
 export const registerUser = async (req, res) => {
-  const { password, email } = req.body;
+  const { password, email, name } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw createHttpError(400, 'Email in use');
+    throw createHttpError(400, 'Email is already in use');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -17,6 +17,7 @@ export const registerUser = async (req, res) => {
   const newUser = await User.create({
     email,
     password: hashedPassword,
+    name,
   });
 
   const newSession = await createSession(newUser._id);

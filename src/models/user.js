@@ -13,16 +13,23 @@ const userSchema = new Schema(
       unique: true,
       required: true,
       trim: true,
-      lowercase: true,
+    },
+    avatarUrl: {
+      type: String,
+      default: 'https://api.dicebear.com/10.x/glyphs/svg?seed=1ufyhxau',
+    },
+    articlesAmount: {
+      type: Number,
+      default: 0,
     },
     password: {
       type: String,
       required: true,
     },
-    avatar: {
-      type: String,
-      required: false,
-      default: 'https://ac.goit.global/fullstack/react/default-avatar.jpg',
+    savedArticles: {
+      type: [Schema.Types.ObjectId],
+      ref: 'story',
+      default: [],
     },
   },
   { timestamps: true, versionKey: false },
@@ -34,4 +41,4 @@ userSchema.methods.toJSON = function() {
   return obj;
 };
 
-export const User = model('AuthUser', userSchema);
+export const User = model('user', userSchema);

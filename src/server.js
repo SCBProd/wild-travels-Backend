@@ -9,6 +9,8 @@ import cookieParser from 'cookie-parser';
 import { errors } from 'celebrate';
 import authRoutes from './routes/authRoutes.js';
 import storiesRoutes from './routes/stories.js';
+import userRoutes from './routes/usersRoutes.js';
+import profileRoutes from './routes/profile.js';
 import helmet from 'helmet';
 
 const app = express();
@@ -23,6 +25,9 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/stories', storiesRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/profile', profileRoutes);
+
 app.use(notFoundHandler);
 
 app.use(errors());
