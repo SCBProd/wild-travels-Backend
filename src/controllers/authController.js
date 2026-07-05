@@ -83,7 +83,7 @@ export const refreshUserSession = async (req, res) => {
   }
 
   await session.deleteOne();
-  const newSession = await createSession(session._id);
+  const newSession = await createSession(session.userId);
   setSessionCookies(res, newSession);
 
   res.status(200).json({ message: 'Session refreshed' });

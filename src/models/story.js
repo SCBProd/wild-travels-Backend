@@ -35,11 +35,11 @@ const storySchema = new Schema(
     },
     date: {
       type: String,
-      required: true,
+      required: false,
     },
   },
 
   { versionKey: false, timestamps: true },
 );
 
-export const Story = model('Story', storySchema);
+export const Story = model('Story', storySchema, 'stories');
