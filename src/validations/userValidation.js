@@ -19,3 +19,9 @@ export const getUserByIdSchema = {
       }),
   }),
 };
+
+export const removeSavedArticleSchema = {
+  [Segments.PARAMS]: Joi.object({
+    articleId: Joi.string().custom(objectIdValidator).required(),
+  }),
+};

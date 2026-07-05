@@ -60,6 +60,34 @@ export const getUserById = async (req, res) => {
   });
 };
 
-// export const getUserStories = (req, res) = {
+export const removeSavedArticle = async (req, res) => {
+  const { articleId } = req.params;
 
-// }
+  if (!mongoose.Types.ObjectId.isValid(articleId)) {
+    throw createHttpError(400, 'Invalid article id');
+  }
+
+  const user = await User.findOneAndUpdate(
+    {
+      _id: req.user._id,
+      savedArticles: articleId,
+    },
+    {
+      $pull: {
+        savedArticles: articleId,
+      },
+    },
+    {
+      returnDocument: 'after',
+    },
+  );
+
+  if (!user) {
+    throw createHttpError(404, 'Article is not in saved articles');
+  }
+
+  res.status(200).json({
+    message: 'Article removed from saved articles',
+    savedArticles: user.savedArticles,
+  });
+};
