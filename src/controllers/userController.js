@@ -3,6 +3,35 @@ import { Story } from '../models/story.js';
 import createHttpError from 'http-errors';
 import mongoose from 'mongoose';
 
+export const getUsers = async (req, res) => {
+  const {
+    perPage = 10,
+    page = 1,
+    sortBy = 'articlesAmount',
+    sortOrder = 'asc',
+  } = req.query;
+
+  const pageNumber = Number(page);
+  const perPageNumber = Number(perPage);
+  const skip = (pageNumber - 1) * perPageNumber;
+  const usersQuery = User.find()
+    .sort({ [sortBy]: sortOrder })
+    .skip(skip)
+    .limit(perPageNumber);
+  const [users, totalUsers] = await Promise.all([
+    usersQuery,
+    User.countDocuments(),
+  ]);
+  const totalPages = Math.ceil(totalUsers / perPageNumber);
+  res.status(200).json({
+    users,
+    page: pageNumber,
+    perPage: perPageNumber,
+    totalUsers,
+    totalPages,
+  });
+};
+
 export const getUserById = async (req, res) => {
   const { userId } = req.params;
 
