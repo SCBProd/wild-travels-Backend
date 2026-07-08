@@ -8,6 +8,7 @@ import {
   createStory,
   getStories,
   getStoryById,
+  getRecommendedStoriesController,
 } from '../controllers/storyController.js';
 import { getSavedStories } from '../controllers/storiesController.js';
 
@@ -19,6 +20,7 @@ import {
 
 const storiesRoutes = Router();
 
+storiesRoutes.get('/recommended', getRecommendedStoriesController);
 storiesRoutes.get('/saved', authenticate, getSavedStories);
 storiesRoutes.get('/', celebrate(getStoriesSchema), getStories);
 

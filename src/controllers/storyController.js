@@ -1,6 +1,9 @@
 import createHttpError from 'http-errors';
+import mongoose from 'mongoose';
 import { Category } from '../models/category.js';
 import { Story } from '../models/story.js';
+import { Session } from '../models/session.js';
+import { User } from '../models/user.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import { calculatePaginationData } from '../utils/pagination.js';
 
@@ -42,6 +45,7 @@ export const getStories = async (req, res, next) => {
     const [stories, totalItems] = await Promise.all([
       Story.find(filter)
         .populate('category')
+        .populate('ownerId', 'name')
         .sort(sort)
         .skip(skip)
         .limit(limit),
@@ -104,9 +108,88 @@ export const getOwnStoryById = async (req, res) => {
 
 export const getStoryById = async (req, res) => {
   const { storyId } = req.params;
-  const story = await Story.findById(storyId);
+  const story = await Story.findById(storyId)
+    .populate('category')
+    .populate('ownerId', 'name');
   if (!story) {
     throw createHttpError(404, 'Story not found');
   }
-  res.status(200).json(story);
+
+  let isSaved = false;
+  const { sessionId, accessToken } = req.cookies;
+
+  if (sessionId && accessToken) {
+    const session = await Session.findOne({ _id: sessionId, accessToken });
+    if (session && session.accessTokenValidUntil > new Date()) {
+      const user = await User.findById(session.userId).lean();
+      if (user) {
+        isSaved = user.savedArticles.some(
+          (id) => id.toString() === story._id.toString(),
+        );
+      }
+    }
+  }
+
+  res.status(200).json({ ...story.toObject(), isSaved });
+};
+
+export const getRecommendedStoriesController = async (req, res, next) => {
+  try {
+    const { category, page = 1, perPage = 10 } = req.query;
+
+    if (!category) {
+      return res
+        .status(400)
+        .json({ message: 'Category query parameter is required' });
+    }
+
+    const limit = parseInt(perPage);
+    const skip = (parseInt(page) - 1) * limit;
+
+    const categoryObjectId = new mongoose.Types.ObjectId(category);
+
+    const stories = await Story.aggregate([
+      { $match: { category: categoryObjectId } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: 'savedArticles',
+          as: 'savedByUsers',
+        },
+      },
+      {
+        $addFields: {
+          countSaves: { $size: '$savedByUsers' },
+        },
+      },
+      { $sort: { countSaves: -1, createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      { $project: { savedByUsers: 0 } },
+    ]);
+
+    await Story.populate(stories, [
+      { path: 'category' },
+      { path: 'ownerId', select: 'name' },
+    ]);
+
+    const totalItems = await Story.countDocuments({
+      category: categoryObjectId,
+    });
+
+    res.status(200).json({
+      status: 200,
+      message: 'Successfully found recommended stories!',
+      data: {
+        stories,
+        page: parseInt(page),
+        perPage: limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 };

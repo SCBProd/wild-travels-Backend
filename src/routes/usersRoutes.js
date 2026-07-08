@@ -1,10 +1,36 @@
 import { celebrate } from 'celebrate';
 import { Router } from 'express';
-import { getUserByIdSchema } from '../validations/userValidation.js';
-import { getUserById } from '../controllers/userController.js';
+import { authenticate } from '../middleware/authenticate.js';
+import {
+  getUsersSchema,
+  getUserByIdSchema,
+  addSavedArticleSchema,
+  removeSavedArticleSchema,
+} from '../validations/userValidation.js';
+import {
+  getUsers,
+  getUserById,
+  addSavedArticle,
+  removeSavedArticle,
+} from '../controllers/userController.js';
 
 const userRoutes = Router();
 
+userRoutes.get('/', celebrate(getUsersSchema), getUsers);
 userRoutes.get('/:userId', celebrate(getUserByIdSchema), getUserById);
+
+userRoutes.post(
+  '/savedArticles/:articleId',
+  authenticate,
+  celebrate(addSavedArticleSchema),
+  addSavedArticle,
+);
+
+userRoutes.delete(
+  '/savedArticles/:articleId',
+  authenticate,
+  celebrate(removeSavedArticleSchema),
+  removeSavedArticle,
+);
 
 export default userRoutes;

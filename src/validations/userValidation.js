@@ -8,6 +8,15 @@ const objectIdValidator = (value, helpers) => {
   return value;
 };
 
+export const getUsersSchema = {
+  [Segments.QUERY]: Joi.object({
+    perPage: Joi.number().integer().min(1).default(10),
+    page: Joi.number().integer().min(1).default(1),
+    sortBy: Joi.string().default('articlesAmount'),
+    sortOrder: Joi.string().valid('asc', 'desc').default('asc'),
+  }),
+};
+
 export const getUserByIdSchema = {
   [Segments.PARAMS]: Joi.object({
     userId: Joi.string()
@@ -17,5 +26,17 @@ export const getUserByIdSchema = {
         'string.pattern.base': 'Invalid userId format',
         'any.required': 'userId is required',
       }),
+  }),
+};
+
+export const addSavedArticleSchema = {
+  [Segments.PARAMS]: Joi.object({
+    articleId: Joi.string().custom(objectIdValidator).required(),
+  }),
+};
+
+export const removeSavedArticleSchema = {
+  [Segments.PARAMS]: Joi.object({
+    articleId: Joi.string().custom(objectIdValidator).required(),
   }),
 };

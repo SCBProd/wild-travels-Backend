@@ -3,6 +3,39 @@ import { Story } from '../models/story.js';
 import createHttpError from 'http-errors';
 import mongoose from 'mongoose';
 
+export const getUsers = async (req, res) => {
+  const {
+    perPage = 10,
+    page = 1,
+    sortBy = 'articlesAmount',
+    sortOrder = 'asc',
+  } = req.query;
+
+  const pageNumber = Number(page);
+  const perPageNumber = Number(perPage);
+  const skip = (pageNumber - 1) * perPageNumber;
+
+  const usersQuery = User.find()
+    .sort({ [sortBy]: sortOrder })
+    .skip(skip)
+    .limit(perPageNumber);
+
+  const [users, totalUsers] = await Promise.all([
+    usersQuery,
+    User.countDocuments(),
+  ]);
+
+  const totalPages = Math.ceil(totalUsers / perPageNumber);
+
+  res.status(200).json({
+    users,
+    page: pageNumber,
+    perPage: perPageNumber,
+    totalUsers,
+    totalPages,
+  });
+};
+
 export const getUserById = async (req, res) => {
   const { userId } = req.params;
 
@@ -60,6 +93,83 @@ export const getUserById = async (req, res) => {
   });
 };
 
-// export const getUserStories = (req, res) = {
+export const addSavedArticle = async (req, res) => {
+  const { articleId } = req.params;
 
-// }
+  if (!mongoose.Types.ObjectId.isValid(articleId)) {
+    throw createHttpError(400, 'Invalid article id');
+  }
+
+  const story = await Story.findById(articleId);
+
+  if (!story) {
+    throw createHttpError(404, 'Article not found');
+  }
+
+  const user = await User.findOneAndUpdate(
+    {
+      _id: req.user._id,
+      savedArticles: { $ne: articleId },
+    },
+    {
+      $addToSet: {
+        savedArticles: articleId,
+      },
+    },
+    {
+      returnDocument: 'after',
+    },
+  );
+
+  if (!user) {
+    throw createHttpError(409, 'Article already saved');
+  }
+
+  story.savedCount += 1;
+  await story.save();
+
+  res.status(201).json({
+    message: 'Article added to saved articles',
+    savedArticles: user.savedArticles,
+    savedCount: story.savedCount,
+  });
+};
+
+export const removeSavedArticle = async (req, res) => {
+  const { articleId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(articleId)) {
+    throw createHttpError(400, 'Invalid article id');
+  }
+
+  const user = await User.findOneAndUpdate(
+    {
+      _id: req.user._id,
+      savedArticles: articleId,
+    },
+    {
+      $pull: {
+        savedArticles: articleId,
+      },
+    },
+    {
+      returnDocument: 'after',
+    },
+  );
+
+  if (!user) {
+    throw createHttpError(404, 'Article is not in saved articles');
+  }
+
+  const story = await Story.findById(articleId);
+  if (story) {
+    story.savedCount = Math.max(0, story.savedCount - 1);
+    await story.save();
+  }
+
+  res.status(200).json({
+    message: 'Article removed from saved articles',
+    savedArticles: user.savedArticles,
+    savedCount: story ? story.savedCount : undefined,
+  });
+};
