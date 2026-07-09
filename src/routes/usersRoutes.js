@@ -20,14 +20,14 @@ userRoutes.get('/', celebrate(getUsersSchema), getUsers);
 userRoutes.get('/:userId', celebrate(getUserByIdSchema), getUserById);
 
 userRoutes.post(
-  '/savedArticles/:articleId',
+  '/savedArticles/:articleId', //users/stories/:articleId/saved
   authenticate,
   celebrate(addSavedArticleSchema),
   addSavedArticle,
 );
 
 userRoutes.delete(
-  '/savedArticles/:articleId',
+  '/savedArticles/:articleId', // taksamo /saved/delete
   authenticate,
   celebrate(removeSavedArticleSchema),
   removeSavedArticle,
