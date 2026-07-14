@@ -1,33 +1,25 @@
-import createHttpError from 'http-errors';
-import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
-import { User } from '../models/user.js';
+import createHttpError from "http-errors";
+import { saveFileToCloudinary } from "../utils/saveFileToCloudinary.js";
+import { User } from "../models/user.js";
 
 export async function getCurrentUser(req, res) {
-  const { sessionId } = req.cookies;
-
-  const user = await User.findOne({ sessionId });
-
-  if (!user) {
-    throw createHttpError(404, 'User not found');
-  }
+  const user = req.user.toObject();
 
   res.status(200).json(user);
 }
 
 export async function updateAvatar(req, res) {
-  const { _id } = req.user;
-
+  const { file, user } = req;
   if (!req.file) {
-    throw createHttpError(400, 'Avatar file is required');
+    throw createHttpError(400, "No File");
   }
 
-  const avatarUrl = await saveFileToCloudinary(req.file.path);
+  const result = await saveFileToCloudinary(file.buffer, user._id);
 
-  const user = await User.findByIdAndUpdate(
-    _id,
-    { avatar: avatarUrl },
-    { new: true },
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: user._id },
+    { avatarUrl: result.secure_url },
+    { returnDocument: "after" }
   );
-
-  res.status(200).json(user);
+  res.status(200).json({ url: updatedUser.avatarUrl });
 }

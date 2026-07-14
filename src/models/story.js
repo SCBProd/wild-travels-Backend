@@ -36,10 +36,14 @@ const storySchema = new Schema(
     date: {
       type: String,
       required: false,
+      default: () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      },
     },
   },
 
-  { versionKey: false, timestamps: true },
+  { versionKey: false, timestamps: false },
 );
 
 export const Story = model('Story', storySchema, 'stories');
