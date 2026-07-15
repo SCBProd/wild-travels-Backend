@@ -1,13 +1,13 @@
-import createHttpError from 'http-errors';
-import mongoose from 'mongoose';
-import { Category } from '../models/category.js';
-import { Story } from '../models/story.js';
-import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
-import { calculatePaginationData } from '../utils/pagination.js';
+import createHttpError from "http-errors";
+import mongoose from "mongoose";
+import { Category } from "../models/category.js";
+import { Story } from "../models/story.js";
+import { saveFileToCloudinary } from "../utils/saveFileToCloudinary.js";
+import { calculatePaginationData } from "../utils/pagination.js";
 
 export const createStory = async (req, res) => {
   if (!req.file) {
-    throw createHttpError(400, 'Image is required');
+    throw createHttpError(400, "Image is required");
   }
 
   const result = await saveFileToCloudinary(req.file.buffer);
@@ -15,7 +15,7 @@ export const createStory = async (req, res) => {
 
   const categoryDoc = await Category.findOne({ category: req.body.category });
   if (!categoryDoc) {
-    throw createHttpError(404, 'Category not found');
+    throw createHttpError(404, "Category not found");
   }
 
   const story = await (
@@ -24,7 +24,11 @@ export const createStory = async (req, res) => {
       ownerId: req.user._id,
       category: categoryDoc._id,
     })
-  ).populate('category');
+  ).populate("category");
+
+  await User.findByIdAndUpdate(req.user._id, {
+    $inc: { articlesAmount: 1 },
+  });
 
   res.status(201).json(story);
 };
@@ -36,7 +40,7 @@ export const getRecommendedStoriesController = async (req, res, next) => {
     if (!category) {
       return res
         .status(400)
-        .json({ message: 'Category query parameter is required' });
+        .json({ message: "Category query parameter is required" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(category)) {
@@ -52,15 +56,15 @@ export const getRecommendedStoriesController = async (req, res, next) => {
       { $match: { category: categoryObjectId } },
       {
         $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: 'savedArticles',
-          as: 'savedByUsers',
+          from: "users",
+          localField: "_id",
+          foreignField: "savedArticles",
+          as: "savedByUsers",
         },
       },
       {
         $addFields: {
-          countSaves: { $size: '$savedByUsers' },
+          countSaves: { $size: "$savedByUsers" },
         },
       },
       { $sort: { countSaves: -1, createdAt: -1 } },
@@ -75,7 +79,7 @@ export const getRecommendedStoriesController = async (req, res, next) => {
 
     res.status(200).json({
       status: 200,
-      message: 'Successfully found recommended stories!',
+      message: "Successfully found recommended stories!",
       data: {
         stories,
         page: parseInt(page),
@@ -102,13 +106,13 @@ export const getStories = async (req, res, next) => {
     const { skip, limit } = calculatePaginationData(page, perPage);
 
     const sort =
-      type === 'popular'
+      type === "popular"
         ? { savedCount: -1, createdAt: -1 }
         : { createdAt: -1 };
 
     const [stories, totalItems] = await Promise.all([
       Story.find(filter)
-        .populate('category')
+        .populate("category")
         .sort(sort)
         .skip(skip)
         .limit(limit),
@@ -139,10 +143,7 @@ export const getOwnStories = async (req, res) => {
 
   const [totalItems, stories] = await Promise.all([
     storyQuery.clone().countDocuments(),
-    storyQuery
-      .skip(skip)
-      .limit(Number(perPage))
-      .sort({ createdAt: -1 }),
+    storyQuery.skip(skip).limit(Number(perPage)).sort({ createdAt: -1 }),
   ]);
 
   res.status(200).json({
@@ -163,7 +164,7 @@ export const getOwnStoryById = async (req, res) => {
   });
 
   if (!story) {
-    throw createHttpError(404, 'Story not found');
+    throw createHttpError(404, "Story not found");
   }
 
   res.status(200).json(story);
@@ -173,7 +174,7 @@ export const getStoryById = async (req, res) => {
   const { storyId } = req.params;
   const story = await Story.findById(storyId);
   if (!story) {
-    throw createHttpError(404, 'Story not found');
+    throw createHttpError(404, "Story not found");
   }
   res.status(200).json(story);
 };
