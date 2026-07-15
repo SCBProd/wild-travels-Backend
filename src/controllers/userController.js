@@ -22,9 +22,22 @@ export const getUsers = async (req, res) => {
     usersQuery,
     User.countDocuments(),
   ]);
+  const usersWithArticles = await Promise.all(
+    users.map(async (user) => {
+      const articlesAmount = await Story.countDocuments({
+        ownerId: user._id,
+      });
+
+      return {
+        ...user.toObject(),
+        articlesAmount,
+      };
+    }),
+  );
+
   const totalPages = Math.ceil(totalUsers / perPageNumber);
   res.status(200).json({
-    users,
+    users: usersWithArticles,
     page: pageNumber,
     perPage: perPageNumber,
     totalUsers,
