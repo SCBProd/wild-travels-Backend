@@ -39,6 +39,10 @@ export const getRecommendedStoriesController = async (req, res, next) => {
         .json({ message: 'Category query parameter is required' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      return res.status(400).json({ message: 'Invalid category ID format' });
+    }
+
     const limit = parseInt(perPage);
     const skip = (parseInt(page) - 1) * limit;
 
