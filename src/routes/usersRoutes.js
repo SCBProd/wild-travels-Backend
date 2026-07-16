@@ -20,7 +20,7 @@ userRoutes.get('/', celebrate(getUsersSchema), getUsers);
 userRoutes.get('/:userId', celebrate(getUserByIdSchema), getUserById);
 
 userRoutes.post(
-  '/user/stories/:articleId', //users/stories/:articleId/saved
+   '/savedArticles/:articleId', //users/stories/:articleId/saved
   authenticate,
   celebrate(addSavedArticleSchema),
   addSavedArticle,
