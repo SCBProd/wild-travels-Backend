@@ -93,7 +93,10 @@ export const getUserById = async (req, res) => {
 
   const totalPages = Math.ceil(totalStories / perPageNumber);
   res.status(200).json({
-    user,
+    user: {
+      ...user.toObject(),
+      articlesAmount: totalStories,
+    },
     stories,
     page: pageNumber,
     perPage: perPageNumber,
