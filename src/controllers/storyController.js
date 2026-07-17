@@ -11,24 +11,23 @@ export const createStory = async (req, res) => {
   }
 
   const result = await saveFileToCloudinary(req.file.buffer);
-  req.body.img = result.secure_url;
 
-  const categoryDoc = await Category.findOne({ category: req.body.category });
+  const categoryDoc = await Category.findOne({
+    category: req.body.category,
+  });
+
   if (!categoryDoc) {
     throw createHttpError(404, "Category not found");
   }
 
-  const story = await (
-    await Story.create({
-      ...req.body,
-      ownerId: req.user._id,
-      category: categoryDoc._id,
-    })
-  ).populate("category");
-
-  await User.findByIdAndUpdate(req.user._id, {
-    $inc: { articlesAmount: 1 },
+  const story = await Story.create({
+    ...req.body,
+    img: result.secure_url,
+    ownerId: req.user._id,
+    category: categoryDoc._id,
   });
+
+  await story.populate("category");
 
   res.status(201).json(story);
 };
